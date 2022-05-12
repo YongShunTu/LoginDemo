@@ -1,20 +1,19 @@
 //
-//  LoginSuccessViewController.swift
+//  ChatroomViewController.swift
 //  LoginDemo
 //
-//  Created by 塗詠順 on 2022/4/16.
+//  Created by 塗詠順 on 2022/5/9.
 //
 
 import UIKit
 import FirebaseAuth
 import FirebaseFirestore
 
-class LoginSuccessViewController: UIViewController {
+class ChatroomViewController: UIViewController {
 
     @IBOutlet weak var userEmail: UILabel!
     @IBOutlet weak var userName: UILabel!
     @IBOutlet weak var userPhoto: UIImageView!
-    @IBOutlet weak var roomsNameTextField: UITextField!
     @IBOutlet weak var roomsTableView: UITableView!
     
     
@@ -24,7 +23,6 @@ class LoginSuccessViewController: UIViewController {
         }
     }
     
-    var time = Date.self
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -35,7 +33,7 @@ class LoginSuccessViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         updataPersonalInformation()
-        fetchRooms()
+        FirebaseController.shard.fetchRooms(self)
     }
     
     func updataPersonalInformation() {
@@ -67,29 +65,22 @@ class LoginSuccessViewController: UIViewController {
     }
     
     @IBAction func createRooms(_ sender: UIButton) {
-        let roomsName = roomsNameTextField.text ?? ""
-        let dateForMatter = DateFormatter()
-        dateForMatter.dateFormat = "yyyy/MM/dd"
-        let time = dateForMatter.string(from: time.now)
-        let db = Firestore.firestore()
-        let rooms = Rooms(name: roomsName, time: time)
-        do {
-            try? db.collection("rooms").document(roomsName).setData(from: rooms)
-            fetchRooms()
-        }catch{
-            print("error")
+        let date = Date()
+        let alter = UIAlertController(title: "輸入聊天室名稱", message: nil, preferredStyle: .alert)
+        alter.addTextField { textfield in
+            textfield.keyboardType = .default
+            textfield.placeholder = "請輸入名稱"
+            textfield.addReturnButton()
         }
-    }
-    
-    func fetchRooms() {
-        let db = Firestore.firestore()
-        db.collection("rooms").getDocuments { snapshot, error in
-            guard let snapshot = snapshot else { return }
-            let rooms = snapshot.documents.compactMap { snapshot in
-                try? snapshot.data(as: Rooms.self)
-            }
-            self.rooms = rooms
+        let okAction = UIAlertAction(title: "新增", style: .default) { action in
+            let rooms = Rooms(name: alter.textFields?[0].text ?? "", time: date)
+            FirebaseController.shard.creatRooms(alter.textFields?[0].text ?? "", rooms, self)
         }
+        let cancleAction = UIAlertAction(title: "取消", style: .default)
+        alter.addAction(cancleAction)
+        alter.addAction(okAction)
+        present(alter, animated: true)
+        
     }
     
     
@@ -105,7 +96,7 @@ class LoginSuccessViewController: UIViewController {
 
 }
 
-extension LoginSuccessViewController: UITableViewDelegate, UITableViewDataSource {
+extension ChatroomViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         rooms.count
     }
@@ -117,7 +108,7 @@ extension LoginSuccessViewController: UITableViewDelegate, UITableViewDataSource
         
         let room = rooms[indexPath.row]
         cell.roomsName.text = room.name
-        cell.createRoomsTime.text = room.time
+        cell.createRoomsTime.text = room.getTimeString()
         
         return cell
     }
@@ -127,10 +118,11 @@ extension LoginSuccessViewController: UITableViewDelegate, UITableViewDataSource
            let row = roomsTableView.indexPathForSelectedRow?.row,
            let displayPhoto = userPhoto.image?.jpegData(compressionQuality: 0.5)
         {
-            controller.roomsName = rooms[row].name
+            controller.roomsName = rooms[row].id ?? ""
             controller.displayName = userName.text ?? ""
             controller.displayPhoto = displayPhoto
         }
     }
     
 }
+

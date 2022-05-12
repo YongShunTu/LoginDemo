@@ -11,5 +11,12 @@ import FirebaseFirestoreSwift
 struct Rooms: Codable, Identifiable {
     @DocumentID var id: String?
     let name: String
-    let time: String
+    let time: Date
+    
+    func getTimeString() -> String {
+        let dateForMatter = DateFormatter()
+        dateForMatter.dateFormat = "yyyy/MM/dd"
+        let timeString = dateForMatter.string(from: time)
+        return timeString
+    }
 }

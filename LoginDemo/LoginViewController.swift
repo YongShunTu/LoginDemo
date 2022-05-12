@@ -21,25 +21,13 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         
         // Do any additional setup after loading the view.
-        if Auth.auth().currentUser != nil {
-            loginAnimationView.isHidden = false
-            loginAnimationLabel.alpha = 1
-            animationAction(true)
-            Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { timer in
-                self.goToLoginSuccessView()
-                self.loginAnimationView.isHidden = true
-            }
-        }else{
+        emailTextField.addReturnButton()
+        passwordTextField.addReturnButton()
+        if Auth.auth().currentUser == nil {
             animationAction(false)
             Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { timer in
                 self.loginAnimationView.isHidden = true
             }
-        }
-        
-        if Auth.auth().currentUser != nil {
-            print("success")
-        }else{
-            print("fail")
         }
         
     }
@@ -70,7 +58,7 @@ class LoginViewController: UIViewController {
     }
     
     func goToLoginSuccessView() {
-        if let controller = self.storyboard?.instantiateViewController(withIdentifier: "\(LoginSuccessViewController.self)") as? LoginSuccessViewController {
+        if let controller = self.storyboard?.instantiateViewController(withIdentifier: "\(ChatroomViewController.self)") as? ChatroomViewController {
             controller.modalPresentationStyle = .fullScreen
             present(controller, animated: true)
         }

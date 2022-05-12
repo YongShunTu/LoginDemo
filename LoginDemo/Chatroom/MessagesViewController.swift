@@ -13,7 +13,6 @@ class MessagesViewController: UIViewController {
     
     @IBOutlet weak var messagesTableView: UITableView!
     @IBOutlet weak var messagesTextView: UITextView!
-    
     @IBOutlet weak var textViewBottom: NSLayoutConstraint!
     @IBOutlet weak var messagesTableViewBottom: NSLayoutConstraint!
     
@@ -24,7 +23,7 @@ class MessagesViewController: UIViewController {
                     self.messagesTableView.reloadData()
                     if self.messages.count >= 1 {
                         let indexPath = IndexPath(row: self.messages.count - 1, section: 0)
-                        self.messagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+                        self.messagesTableView.scrollToRow(at: indexPath, at: .top, animated: true)
                     }
                 }
     
@@ -34,13 +33,14 @@ class MessagesViewController: UIViewController {
     var roomsName: String = ""
     var displayName: String = ""
     var displayPhoto: Data?
-    let time = Date.now
 
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        FirebaseController.shard.checkMessagesChanges(roomsName, self)
+//        FirebaseController.shard.checkMessagesChanges(roomsName, self)
+        FirebaseController.shard.checkMessagesChange(roomsName, self)
         addTapGesture()
+        messagesTextView.addReturnButton()
         messagesTextView.textContainerInset = .init(top: 10, left: 10, bottom: 10, right: 10)
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillshow(_:)), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -49,9 +49,8 @@ class MessagesViewController: UIViewController {
     }
     
     
-    
-    
     @IBAction func addMessagesButtonClicked(_ sender: UIButton) {
+        let time = Date()
         let messages = messagesTextView.text ?? ""
         let db = Firestore.firestore()
         if let displayPhoto = displayPhoto,
@@ -73,7 +72,10 @@ class MessagesViewController: UIViewController {
         dismiss(animated: true)
     }
     
-
+    @IBAction func testChangeMessages(_ sender: UIButton) {
+        FirebaseController.shard.modifyMessage(roomsName, messages[1].id ?? "", "測試看看囉", self)
+    }
+    
     /*
      // MARK: - Navigation
      
@@ -92,28 +94,29 @@ extension MessagesViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = messagesTableView.dequeueReusableCell(withIdentifier: "\(MessagesTableViewCell.self)", for: indexPath) as? MessagesTableViewCell else { return UITableViewCell() }
+
         
         let message = messages[indexPath.row]
+        
         if message.email == Auth.auth().currentUser?.email {
+            guard let cell = messagesTableView.dequeueReusableCell(withIdentifier: "\(MessagesTableViewCell.self)", for: indexPath) as? MessagesTableViewCell else { return UITableViewCell() }
+            
             cell.displayPhoto.image = UIImage(data: message.displayPhoto)
             cell.displayName.text = message.displayName
             cell.messages.text = message.messages
-            cell.messagesTime.text = message.getTimeStyle()
+            cell.messagesTime.text = message.getTimeString()
             
             return cell
         }else{
-            let cell = messagesTableView.dequeueReusableCell(withIdentifier: "\(OtherMessagesTableViewCell.self)", for: indexPath) as? OtherMessagesTableViewCell
+            guard let cell = messagesTableView.dequeueReusableCell(withIdentifier: "\(OtherMessagesTableViewCell.self)", for: indexPath) as? OtherMessagesTableViewCell else { return UITableViewCell() }
             
-            //                let message = messages?[indexPath.row]
-            cell?.otherDisplayPhoto.image = UIImage(data: message.displayPhoto)
-            cell?.otherDisplayName.text = message.displayName
-            cell?.otherMessages.text = message.messages
-            cell?.otherMessagesTime.text = message.getTimeStyle()
+            cell.otherDisplayPhoto.image = UIImage(data: message.displayPhoto)
+            cell.otherDisplayName.text = message.displayName
+            cell.otherMessages.text = message.messages
+            cell.otherMessagesTime.text = message.getTimeString()
             
-            return cell ?? UITableViewCell()
+            return cell
         }
-        
         
     }
     
@@ -127,17 +130,17 @@ extension MessagesViewController {
         let keyboardFrame = keyboardFrameValue.cgRectValue
         let keyboardHeight = keyboardFrame.height
         
-        textViewBottom.constant = -keyboardHeight + 33
         if messages.count >= 1 {
             let indexPath = IndexPath(row: self.messages.count - 1, section: 0)
-            self.messagesTableView.scrollToRow(at: indexPath, at: .top, animated: false)
+            self.messagesTableView.scrollToRow(at: indexPath, at: .top, animated: true)
         }
-
+        textViewBottom.constant = -keyboardHeight + 33
         view.layoutIfNeeded()
     }
     
     @objc func keyboardWillHide(_ noti: Notification) {
         textViewBottom.constant = 0
+        view.layoutIfNeeded()
     }
     
     func addTapGesture() {

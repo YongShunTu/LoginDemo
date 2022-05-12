@@ -39,34 +39,62 @@ class FirebaseController {
         }
     }
     
-    func checkMessagesChanges(_ roomsName: String, _ messagesViewController: MessagesViewController) {
-        db.collection("rooms").document(roomsName).collection("messages").order(by: "time").addSnapshotListener { snapshot, error in
-            messagesViewController.messages = []
+//    func checkMessagesChanges(_ roomsName: String, _ messagesViewController: MessagesViewController) {
+//        db.collection("rooms").document(roomsName).collection("messages").order(by: "time").addSnapshotListener { [weak messagesViewController] snapshot, error in
+//            guard let messagesViewController = messagesViewController else { return }
+//            messagesViewController.messages = []
+//            guard let snapshot = snapshot else { return }
+//            snapshot.documents.forEach { snapshot in
+//                guard let messages = try? snapshot.data(as: Messages.self) else { return }
+//                messagesViewController.messages.append(messages)
+//            }
+//        }
+//    }
+    
+    
+    func checkMessagesChange(_ roomsName: String, _ messagesViewController: MessagesViewController) {
+        db.collection("rooms").document(roomsName).collection("messages").order(by: "time").addSnapshotListener { [weak messagesViewController] snapshot, error in
+            guard let messagesViewController = messagesViewController else { return }
             guard let snapshot = snapshot else { return }
-            snapshot.documents.forEach { snapshot in
-                guard let messages = try? snapshot.data(as: Messages.self) else { return }
-                messagesViewController.messages.append(messages)
-                print("\(messagesViewController.messages)")
+            let messages = snapshot.documents.compactMap { snapshot in
+                try? snapshot.data(as: Messages.self)
+            }
+            messagesViewController.messages = messages
+        }
+    }
+    
+    // just test modifyMessage
+    func modifyMessage(_ roomsName: String, _ documentID: String,  _ messagesString: String, _ messagesViewController: MessagesViewController) {
+        let documentReference = db.collection("rooms").document(roomsName).collection("messages").document(documentID)
+        documentReference.getDocument { snapshot, error in
+            guard let snapshot = snapshot,
+                  snapshot.exists,
+                  var message = try? snapshot.data(as: Messages.self) else { return }
+            message.messages = messagesString
+            do {
+                try documentReference.setData(from: message)
+            }catch{
+                print(error)
             }
         }
     }
     
-    func checkMessagesChange(_ roomsName: String, _ messagesViewController: MessagesViewController) {
-        db.collection("rooms").document(roomsName).collection("messages").order(by: "time").addSnapshotListener { snapshot, error in
-            messagesViewController.messages.removeAll()
+    func creatRooms(_ roomsName: String, _ rooms: Rooms, _ chatroomViewController: ChatroomViewController) {
+        do {
+            try db.collection("rooms").document(roomsName).setData(from: rooms)
+            fetchRooms(chatroomViewController)
+        }catch{
+            print(error)
+        }
+    }
+    
+    func fetchRooms(_ chatroomViewController: ChatroomViewController) {
+        db.collection("rooms").order(by: "time").getDocuments { snapshot, error in
             guard let snapshot = snapshot else { return }
-            snapshot.documentChanges.forEach { documentChange in
-                switch documentChange.type {
-                case .added:
-                    print("add")
-                    guard let messages = try? documentChange.document.data(as: Messages.self) else { break }
-                    messagesViewController.messages.append(messages)
-                case .modified:
-                    print("modified")
-                case .removed:
-                    print("removed")
-                }
+            let rooms = snapshot.documents.compactMap { snapshot in
+                try? snapshot.data(as: Rooms.self)
             }
+            chatroomViewController.rooms = rooms
         }
     }
     

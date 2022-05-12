@@ -14,13 +14,13 @@ struct Messages: Codable, Identifiable {
     let email: String
     let displayName: String
     let displayPhoto: Data
-    let messages: String
+    var messages: String
     let time: Date
     
-    func getTimeStyle() -> String {
-        let dateForMatter = DateFormatter()
-        dateForMatter.dateFormat = "HH:mm"
-        let timeString = dateForMatter.string(from: time)
+    func getTimeString() -> String {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "HH:mm"
+        let timeString = dateFormatter.string(from: time)
         let dateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: time)
         let hour = dateComponents.hour ?? 0
         if hour >= 12 {
