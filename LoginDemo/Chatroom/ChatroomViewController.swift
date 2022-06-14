@@ -38,7 +38,8 @@ class ChatroomViewController: UIViewController {
     
     func updataPersonalInformation() {
         if let user = Auth.auth().currentUser,
-           let imageData = try? Data(contentsOf: user.photoURL!)
+           let photoURL = user.photoURL,
+           let imageData = try? Data(contentsOf: photoURL)
         {
             userEmail.text = user.email
             userName.text = user.displayName

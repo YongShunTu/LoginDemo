@@ -33,6 +33,7 @@
 		ACDF2CFC280830A20010ECD5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ACDF2CFB280830A20010ECD5 /* Assets.xcassets */; };
 		ACDF2CFF280830A20010ECD5 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ACDF2CFD280830A20010ECD5 /* LaunchScreen.storyboard */; };
 		ACDF2D07280836C00010ECD5 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = ACDF2D06280836C00010ECD5 /* GoogleService-Info.plist */; };
+		ACF7701F28589291008473E9 /* FacebookLogin in Frameworks */ = {isa = PBXBuildFile; productRef = ACF7701E28589291008473E9 /* FacebookLogin */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,6 +63,7 @@
 		ACDF2CFE280830A20010ECD5 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		ACDF2D00280830A20010ECD5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		ACDF2D06280836C00010ECD5 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		ACF7701C285890ED008473E9 /* LoginDemoDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LoginDemoDebug.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -71,6 +73,7 @@
 			files = (
 				AC9D77EE28083BD10099AAB7 /* FirebaseAuth in Frameworks */,
 				AC9D77F028083BD10099AAB7 /* FirebaseFirestoreSwift in Frameworks */,
+				ACF7701F28589291008473E9 /* FacebookLogin in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +133,7 @@
 		ACDF2CF1280830A10010ECD5 /* LoginDemo */ = {
 			isa = PBXGroup;
 			children = (
+				ACF7701C285890ED008473E9 /* LoginDemoDebug.entitlements */,
 				ACCA43B62829241F00EED28C /* Chatroom */,
 				ACCA439E281BA4F500EED28C /* Controller */,
 				ACCA439D281BA4DF00EED28C /* Models */,
@@ -168,6 +172,7 @@
 			packageProductDependencies = (
 				AC9D77ED28083BD10099AAB7 /* FirebaseAuth */,
 				AC9D77EF28083BD10099AAB7 /* FirebaseFirestoreSwift */,
+				ACF7701E28589291008473E9 /* FacebookLogin */,
 			);
 			productName = LoginDemo;
 			productReference = ACDF2CEF280830A10010ECD5 /* LoginDemo.app */;
@@ -199,6 +204,7 @@
 			mainGroup = ACDF2CE6280830A10010ECD5;
 			packageReferences = (
 				AC9D77EC28083BD10099AAB7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				ACF7701D28589291008473E9 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */,
 			);
 			productRefGroup = ACDF2CF0280830A10010ECD5 /* Products */;
 			projectDirPath = "";
@@ -392,6 +398,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = LoginDemo/LoginDemoDebug.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 5A59YVG9DY;
@@ -477,6 +484,14 @@
 				kind = branch;
 			};
 		};
+		ACF7701D28589291008473E9 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/facebook/facebook-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -489,6 +504,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = AC9D77EC28083BD10099AAB7 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestoreSwift;
+		};
+		ACF7701E28589291008473E9 /* FacebookLogin */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = ACF7701D28589291008473E9 /* XCRemoteSwiftPackageReference "facebook-ios-sdk" */;
+			productName = FacebookLogin;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

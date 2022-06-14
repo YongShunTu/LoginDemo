@@ -7,6 +7,7 @@
 
 import UIKit
 import FirebaseAuth
+import FacebookLogin
 
 class LoginViewController: UIViewController {
     
@@ -93,6 +94,45 @@ class LoginViewController: UIViewController {
         
     }
     
+    @IBAction func fbLoginButtonClicked(_ sender: UIButton) {
+        let manager = LoginManager()
+        manager.logIn(permissions: [.publicProfile, .email], viewController: nil) { loginResult in
+            switch loginResult {
+            case .success(granted: _, declined: _, token: let token) :
+                let credential = FacebookAuthProvider.credential(withAccessToken: token!.tokenString)
+                Auth.auth().signIn(with: credential) { [weak self] result, error in
+                    guard let self = self else { return }
+                    guard error == nil else {
+                        print(error?.localizedDescription ?? "")
+                        return
+                    }
+                    if let _ = AccessToken.current {
+                        Profile.loadCurrentProfile { profile, error in
+                            guard let profile = profile,
+                                  let imageURL = profile.imageURL(forMode: .square, size: CGSize(width: 300, height: 300))
+                            else { return }
+                            let changeResquest = Auth.auth().currentUser?.createProfileChangeRequest()
+                            changeResquest?.photoURL = imageURL
+                            changeResquest?.commitChanges(completion: { error in
+                                guard error != nil else { return }
+                            })
+                        }
+                    }
+                    self.loginAnimationView.isHidden = false
+                    self.loginAnimationLabel.alpha = 1
+                    self.animationAction(true)
+                    Timer.scheduledTimer(withTimeInterval: 7, repeats: false) { timer in
+                        self.goToLoginSuccessView()
+                        self.loginAnimationView.isHidden = true
+                    }
+                }
+            case .cancelled :
+                print("cancelled")
+            case .failed(_) :
+                print("error")
+            }
+        }
+    }
     /*
      // MARK: - Navigation
      
